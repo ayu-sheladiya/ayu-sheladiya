@@ -1,0 +1,1190 @@
+const { useState, useEffect, useRef } = React;
+
+const SITE_CONFIG = {
+  email: 'ayushiseldiyaayushi@gmail.com',
+  linkedin: 'https://www.linkedin.com/in/ayushi-sheladiya-728387341/',
+  github: 'https://github.com/ayu-sheladiya',
+  siteUrl: 'https://ayu-sheladiya.github.io',
+  photo: 'ayu.jpg',
+  resume: 'Ayushi-Sheladiya-Resume.pdf',
+};
+
+const CUSTOM_CSS = `
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --accent:#93C572;
+  --accent-light:#B5D99C;
+  --accent-bright:#00FF88;
+  --blue:#4FC3F7;
+  --dark:#0A0A0A;
+  --dark2:#111111;
+  --white:#FFFFFF;
+  --gray:#888;
+  --glass-bg:rgba(255,255,255,0.06);
+  --glass-border:rgba(255,255,255,0.12);
+  --glass-glow:rgba(147,197,114,0.18);
+}
+html{scroll-behavior:smooth}
+body{font-family:'Poppins',sans-serif;background:var(--dark);color:var(--white);overflow-x:hidden}
+
+nav.portfolio-nav{
+  position:fixed;top:20px;left:50%;transform:translateX(-50%);
+  z-index:1000;width:92%;max-width:920px;
+  background:rgba(15,15,15,0.75);
+  backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+  border:1px solid var(--glass-border);
+  border-radius:50px;
+  padding:14px 28px;
+  display:flex;align-items:center;justify-content:space-between;
+  box-shadow:0 8px 32px rgba(0,0,0,0.4),0 0 0 1px rgba(255,255,255,0.05);
+  transition:all 0.3s ease;
+}
+nav.portfolio-nav.scrolled{
+  background:rgba(10,10,10,0.92);
+  box-shadow:0 8px 40px rgba(0,0,0,0.6),0 0 30px var(--glass-glow);
+}
+.nav-brand{display:flex;align-items:center;gap:8px;font-weight:700;font-size:15px;color:var(--white)}
+.nav-brand .brand-icon{
+  width:32px;height:32px;background:var(--accent);border-radius:50%;
+  display:flex;align-items:center;justify-content:center;font-size:14px;
+}
+.nav-links{display:flex;align-items:center;gap:6px}
+.nav-links a{
+  color:rgba(255,255,255,0.7);text-decoration:none;font-size:13px;font-weight:500;
+  padding:7px 14px;border-radius:25px;transition:all 0.3s ease;
+}
+.nav-links a:hover,.nav-links a.active{background:var(--accent);color:#0a0a0a}
+.hamburger{display:none;flex-direction:column;gap:5px;cursor:pointer;padding:4px;background:none;border:none}
+.hamburger span{width:22px;height:2px;background:var(--white);border-radius:2px}
+
+.hero{
+  min-height:100vh;display:flex;align-items:center;
+  background:var(--white);color:var(--dark);
+  padding:120px 6% 80px;position:relative;overflow:hidden;
+}
+.hero::before{
+  content:'';position:absolute;top:-20%;right:-5%;
+  width:600px;height:600px;
+  background:radial-gradient(circle,rgba(147,197,114,0.12) 0%,transparent 70%);
+  pointer-events:none;
+}
+.hero-inner{
+  max-width:1200px;margin:0 auto;width:100%;
+  display:grid;grid-template-columns:1fr 1fr;gap:48px 72px;align-items:center;
+}
+.hero-left{position:relative;z-index:2;min-width:0;padding-right:24px}
+.hero-left.loaded{animation:fadeInUp 0.8s ease both}
+.hero-right{
+  position:relative;z-index:1;min-width:0;
+  display:flex;justify-content:center;align-items:center;
+  padding-left:24px;flex-shrink:0;
+}
+.hero-right.loaded{animation:fadeInUp 0.8s 0.2s ease both}
+.hello-badge{
+  display:inline-flex;align-items:center;gap:8px;
+  border:1.5px solid var(--dark);border-radius:25px;
+  padding:6px 18px;font-size:13px;font-weight:500;color:var(--dark);
+  margin-bottom:24px;position:relative;
+}
+.hello-badge::after{
+  content:'✦';position:absolute;right:-18px;top:-8px;
+  font-size:18px;color:var(--accent);
+}
+.hero-title{font-size:clamp(36px,5vw,60px);font-weight:800;line-height:1.1;margin-bottom:16px;color:var(--dark)}
+.hero-title span{color:var(--accent);position:relative}
+.hero-title span::after{
+  content:'';position:absolute;bottom:-4px;left:0;right:0;height:3px;
+  background:var(--accent);border-radius:2px;opacity:0.4;
+}
+.hero-subtitle{font-size:clamp(18px,2.5vw,26px);font-weight:600;color:var(--dark);margin-bottom:20px;line-height:1.3}
+.hero-bio{font-size:14px;color:#555;line-height:1.8;margin-bottom:36px;max-width:440px}
+.hero-btns{display:flex;gap:14px;flex-wrap:wrap}
+.btn-primary{
+  background:linear-gradient(135deg,var(--accent),var(--accent-light));
+  color:#0a0a0a;border:none;
+  padding:14px 28px;border-radius:50px;font-size:14px;font-weight:600;
+  cursor:pointer;display:inline-flex;align-items:center;gap:8px;
+  text-decoration:none;transition:all 0.3s ease;
+  box-shadow:0 4px 20px rgba(147,197,114,0.45);
+}
+.btn-primary:hover{filter:brightness(1.08);transform:translateY(-2px);box-shadow:0 8px 28px rgba(147,197,114,0.55)}
+.btn-outline{
+  background:transparent;color:var(--dark);
+  border:2px solid var(--dark);
+  padding:14px 28px;border-radius:50px;font-size:14px;font-weight:600;
+  cursor:pointer;display:inline-flex;align-items:center;gap:8px;
+  text-decoration:none;transition:all 0.3s ease;
+}
+.btn-outline:hover{background:var(--dark);color:#fff;transform:translateY(-2px)}
+
+.hero-circle-wrap{
+  position:relative;display:inline-block;
+  width:340px;height:340px;flex-shrink:0;
+}
+.hero-circle{
+  width:100%;height:100%;border-radius:50%;
+  background:linear-gradient(160deg,#B5D99C 0%,var(--accent) 55%,#6B9E4A 100%);
+  position:relative;z-index:2;display:flex;align-items:center;justify-content:center;overflow:hidden;
+  box-shadow:0 20px 60px rgba(147,197,114,0.35);
+}
+.hero-avatar{
+  width:100%;height:100%;object-fit:cover;object-position:center 22%;
+  display:block;
+}
+.hero-ring{
+  position:absolute;inset:-12px;border-radius:50%;z-index:1;
+  border:2px solid rgba(147,197,114,0.35);
+  animation:pulse-ring 2.5s ease-in-out infinite;
+  pointer-events:none;
+}
+@keyframes pulse-ring{
+  0%,100%{box-shadow:0 0 20px rgba(147,197,114,0.3),0 0 40px rgba(79,195,247,0.15);transform:scale(1)}
+  50%{box-shadow:0 0 35px rgba(0,255,136,0.45),0 0 60px rgba(79,195,247,0.25);transform:scale(1.03)}
+}
+.experience-badge{
+  position:absolute;right:-16px;top:50%;z-index:3;
+  transform:translateY(-50%);
+  background:rgba(255,255,255,0.15);backdrop-filter:blur(20px);
+  border:1px solid rgba(255,255,255,0.3);border-radius:16px;
+  padding:14px 18px;text-align:center;
+  box-shadow:0 8px 32px rgba(0,0,0,0.2);
+  animation:floatY-badge 4s ease-in-out infinite;
+}
+@keyframes floatY-badge{
+  0%,100%{transform:translateY(-50%) translateY(0)}
+  50%{transform:translateY(-50%) translateY(-10px)}
+}
+.exp-stars{color:#FFD700;font-size:14px;margin-bottom:6px;letter-spacing:1px}
+.exp-num{font-size:26px;font-weight:800;color:var(--white);line-height:1}
+.exp-label{font-size:11px;color:rgba(255,255,255,0.8);font-weight:500}
+.float-badge{
+  position:absolute;
+  background:rgba(255,255,255,0.12);backdrop-filter:blur(16px);
+  border:1px solid rgba(255,255,255,0.2);border-radius:12px;
+  padding:10px 16px;font-size:12px;font-weight:600;color:var(--white);
+  box-shadow:0 4px 20px rgba(0,0,0,0.15);
+  display:flex;align-items:center;gap:8px;
+}
+.float-badge.green{
+  background:rgba(0,255,136,0.15);border-color:rgba(0,255,136,0.35);
+  bottom:28px;left:12px;z-index:3;color:var(--accent-bright);
+  animation:floatY 3s 0.5s ease-in-out infinite;
+}
+.float-badge.blue{
+  background:rgba(79,195,247,0.2);border-color:rgba(79,195,247,0.35);
+  top:28px;left:12px;z-index:3;color:var(--blue);
+  animation:floatY 3.5s 1s ease-in-out infinite;
+}
+.float-badge .dot{width:8px;height:8px;border-radius:50%;background:currentColor;animation:pulse-dot 2s infinite}
+@keyframes pulse-dot{0%,100%{opacity:1;transform:scale(1)}50%{opacity:0.5;transform:scale(0.8)}}
+@keyframes floatY{0%,100%{transform:translateY(0)}50%{transform:translateY(-12px)}}
+
+.dark-section{background:var(--dark);color:var(--white);padding:90px 6%}
+.section-inner{max-width:1200px;margin:0 auto}
+.section-header{text-align:center;margin-bottom:60px}
+.section-tag{
+  display:inline-block;background:rgba(147,197,114,0.15);
+  color:var(--accent);border:1px solid rgba(147,197,114,0.35);
+  border-radius:25px;padding:6px 20px;font-size:12px;font-weight:600;
+  letter-spacing:0.08em;text-transform:uppercase;margin-bottom:16px;
+}
+.section-title{font-size:clamp(28px,4vw,44px);font-weight:800;color:var(--white);line-height:1.2}
+.section-title span{color:var(--accent)}
+.section-desc{font-size:14px;color:var(--gray);max-width:500px;margin:14px auto 0;line-height:1.8}
+
+.services-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+.service-card{
+  background:var(--glass-bg);border:1px solid var(--glass-border);
+  border-radius:20px;padding:32px 24px;position:relative;overflow:hidden;
+  transition:all 0.4s ease;cursor:pointer;
+}
+.service-card::before{
+  content:'';position:absolute;top:0;left:0;right:0;bottom:0;
+  background:linear-gradient(135deg,rgba(147,197,114,0.08) 0%,transparent 60%);
+  opacity:0;transition:opacity 0.4s ease;
+}
+.service-card:hover{transform:translateY(-8px);border-color:rgba(147,197,114,0.4);box-shadow:0 20px 50px rgba(0,0,0,0.4),0 0 30px rgba(147,197,114,0.12)}
+.service-card:hover::before{opacity:1}
+.service-card h3{font-size:17px;font-weight:700;margin-bottom:12px;color:var(--white)}
+.service-card p{font-size:13px;color:var(--gray);line-height:1.7}
+.service-card .s-img{
+  width:60px;height:60px;border-radius:12px;margin-bottom:16px;
+  background:linear-gradient(135deg,var(--accent),#6B9E4A);
+  display:flex;align-items:center;justify-content:center;font-size:28px;
+}
+
+.skills-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+.skill-card{
+  background:var(--glass-bg);border:1px solid var(--glass-border);
+  border-radius:18px;padding:24px 20px;text-align:center;
+  transition:all 0.35s ease;
+}
+.skill-card:hover{transform:translateY(-8px);border-color:rgba(147,197,114,0.45);box-shadow:0 16px 40px rgba(0,0,0,0.3),0 0 24px rgba(147,197,114,0.1)}
+.skill-icon{font-size:32px;margin-bottom:12px;display:block}
+.skill-name{font-size:13px;font-weight:600;color:var(--white);margin-bottom:12px}
+.skill-bar{background:rgba(255,255,255,0.08);border-radius:4px;height:4px;overflow:hidden}
+.skill-bar-fill{height:100%;border-radius:4px;background:linear-gradient(90deg,var(--accent),var(--accent-bright));transition:width 1.2s ease}
+
+.projects-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:22px}
+.project-card{
+  background:var(--glass-bg);border:1px solid var(--glass-border);
+  border-radius:22px;overflow:hidden;transition:all 0.4s ease;cursor:pointer;
+}
+.project-card:hover{transform:translateY(-8px);border-color:rgba(147,197,114,0.45);box-shadow:0 24px 60px rgba(0,0,0,0.5),0 0 40px rgba(147,197,114,0.12)}
+.project-img{height:200px;overflow:hidden;display:flex;align-items:center;justify-content:center;position:relative}
+.project-img img{width:100%;height:100%;object-fit:cover;transition:transform 0.4s ease,opacity 0.3s ease}
+.project-img-inner{width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:64px;transition:transform 0.4s ease}
+.project-card:hover .project-img img{transform:scale(1.04)}
+
+/* Carousel UI styles */
+.carousel-container{position:relative;width:100%;height:100%;overflow:hidden}
+.carousel-slide{position:absolute;inset:0;opacity:0;transition:opacity 0.4s ease-in-out;display:flex;align-items:center;justify-content:center}
+.carousel-slide.active{opacity:1;position:relative;z-index:2}
+.carousel-btn{
+  position:absolute;top:50%;transform:translateY(-50%);
+  width:32px;height:32px;background:rgba(10,10,10,0.7);
+  backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,0.15);
+  color:var(--white);border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  cursor:pointer;z-index:10;opacity:0;transition:all 0.3s ease;
+  font-size:16px;line-height:1;user-select:none;
+}
+.project-card:hover .carousel-btn{opacity:1}
+.carousel-btn:hover{background:var(--accent);color:#0a0a0a;border-color:var(--accent);transform:translateY(-50%) scale(1.1)}
+.carousel-btn.prev{left:10px}
+.carousel-btn.next{right:10px}
+.carousel-dots{
+  position:absolute;bottom:10px;left:50%;transform:translateX(-50%);
+  display:flex;gap:5px;z-index:10;background:rgba(0,0,0,0.5);
+  padding:3px 6px;border-radius:10px;backdrop-filter:blur(4px);
+}
+.carousel-dot{
+  width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,0.4);
+  cursor:pointer;transition:all 0.3s ease;border:none;padding:0;
+}
+.carousel-dot.active{background:var(--accent);transform:scale(1.2)}
+.project-badge{
+  position:absolute;top:10px;left:10px;z-index:10;
+  background:rgba(15,15,15,0.75);backdrop-filter:blur(6px);
+  border:1px solid var(--glass-border);color:var(--white);
+  padding:3px 8px;border-radius:10px;font-size:11px;font-weight:600;
+  display:flex;align-items:center;gap:4px;
+}
+.project-zoom-btn{
+  position:absolute;top:10px;right:10px;z-index:10;
+  width:28px;height:28px;background:rgba(15,15,15,0.75);backdrop-filter:blur(6px);
+  border:1px solid var(--glass-border);color:var(--white);
+  border-radius:50%;display:flex;align-items:center;justify-content:center;
+  font-size:11px;cursor:pointer;opacity:0;transition:all 0.3s ease;border:none;
+}
+.project-card:hover .project-zoom-btn{opacity:1}
+.project-zoom-btn:hover{background:var(--accent);color:#0a0a0a;border-color:var(--accent);transform:scale(1.1)}
+
+/* Lightbox styles */
+.lightbox-overlay{
+  position:fixed;inset:0;background:rgba(5,5,5,0.95);
+  backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
+  z-index:2000;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
+  animation:fadeIn 0.3s ease;
+}
+.lightbox-close{
+  position:absolute;top:20px;right:20px;
+  width:40px;height:40px;background:rgba(255,255,255,0.06);
+  border:1px solid var(--glass-border);color:var(--white);
+  border-radius:50%;display:flex;align-items:center;justify-content:center;
+  font-size:18px;cursor:pointer;transition:all 0.3s ease;z-index:2010;
+  border:none;
+}
+.lightbox-close:hover{background:var(--accent);color:#0a0a0a;border-color:var(--accent);transform:rotate(90deg)}
+.lightbox-container{
+  position:relative;width:92%;max-width:1000px;
+  display:flex;flex-direction:column;align-items:center;gap:16px;
+}
+.lightbox-main{
+  position:relative;width:100%;display:flex;align-items:center;justify-content:center;
+}
+.lightbox-img-wrapper{
+  max-width:100%;max-height:60vh;border-radius:14px;
+  overflow:hidden;border:1px solid var(--glass-border);
+  box-shadow:0 30px 70px rgba(0,0,0,0.8), 0 0 50px rgba(147,197,114,0.05);
+  background:rgba(0,0,0,0.4);display:flex;align-items:center;justify-content:center;
+}
+.lightbox-img{
+  max-width:100%;max-height:60vh;object-fit:contain;
+  display:block;animation:scaleIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.lightbox-btn{
+  width:44px;height:44px;background:rgba(255,255,255,0.07);
+  backdrop-filter:blur(10px);border:1px solid var(--glass-border);
+  color:var(--white);border-radius:50%;display:flex;align-items:center;justify-content:center;
+  cursor:pointer;font-size:16px;transition:all 0.3s ease;z-index:2010;
+  user-select:none;border:none;
+}
+.lightbox-btn:hover{background:var(--accent);color:#0a0a0a;border-color:var(--accent);transform:scale(1.1)}
+.lightbox-btn.prev{margin-right:15px}
+.lightbox-btn.next{margin-left:15px}
+.lightbox-info{text-align:center;color:var(--white);z-index:2010;max-width:600px}
+.lightbox-title{font-size:16px;font-weight:700;margin-bottom:4px;letter-spacing:0.5px}
+.lightbox-counter{font-size:12px;color:var(--gray);font-weight:500}
+.lightbox-thumbnails{
+  display:flex;justify-content:center;gap:8px;margin-top:10px;
+  flex-wrap:wrap;max-width:80%;z-index:2010;
+}
+.lightbox-thumb{
+  width:56px;height:38px;border-radius:5px;overflow:hidden;
+  border:2px solid rgba(255,255,255,0.15);cursor:pointer;
+  transition:all 0.3s ease;opacity:0.6;background:#111;
+}
+.lightbox-thumb img{width:100%;height:100%;object-fit:cover}
+.lightbox-thumb.active{border-color:var(--accent);opacity:1;transform:scale(1.06)}
+.lightbox-thumb:hover{opacity:0.9}
+
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes scaleIn{from{transform:scale(0.95);opacity:0}to{transform:scale(1);opacity:1}}
+.p-grad-1{background:linear-gradient(135deg,#1a1a2e 0%,#16213e 50%,#0f3460 100%)}
+.p-grad-2{background:linear-gradient(135deg,#0d1b2a 0%,#1b2838 50%,#2d5016 100%)}
+.p-grad-3{background:linear-gradient(135deg,#2d1b69 0%,#11998e 100%)}
+.p-grad-4{background:linear-gradient(135deg,#1a2e1a 0%,#3d5c2e 50%,#6B9E4A 100%)}
+.project-body{padding:22px}
+.project-title{font-size:16px;font-weight:700;color:var(--white);margin-bottom:10px}
+.tech-pills{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px}
+.tech-pill{
+  font-size:11px;font-weight:500;padding:4px 12px;border-radius:20px;
+  background:rgba(255,255,255,0.07);color:rgba(255,255,255,0.75);
+  border:1px solid rgba(255,255,255,0.1);
+}
+.tech-pill.accent{background:rgba(147,197,114,0.18);color:var(--accent);border-color:rgba(147,197,114,0.35)}
+.project-link{
+  display:inline-flex;align-items:center;gap:6px;
+  color:var(--accent-bright);font-size:13px;font-weight:600;text-decoration:none;
+  transition:gap 0.3s ease;
+}
+.project-link:hover{gap:10px}
+
+.contact-card{
+  background:var(--glass-bg);border:1px solid var(--glass-border);
+  border-radius:28px;padding:60px 50px;text-align:center;max-width:640px;margin:0 auto;
+  backdrop-filter:blur(16px);box-shadow:0 0 60px rgba(147,197,114,0.08);
+}
+.contact-title{font-size:clamp(24px,3.5vw,38px);font-weight:800;margin-bottom:14px;color:var(--white)}
+.contact-title span{color:var(--accent)}
+.contact-desc{font-size:14px;color:var(--gray);margin-bottom:40px;line-height:1.8}
+.contact-links{display:flex;justify-content:center;gap:20px;flex-wrap:wrap;margin-bottom:40px}
+.contact-link{
+  display:flex;align-items:center;gap:10px;
+  background:rgba(255,255,255,0.05);border:1px solid var(--glass-border);
+  border-radius:50px;padding:12px 22px;color:rgba(255,255,255,0.8);
+  text-decoration:none;font-size:13px;font-weight:500;transition:all 0.3s ease;
+}
+.contact-link:hover{border-color:rgba(147,197,114,0.5);color:var(--accent);background:rgba(147,197,114,0.1);transform:translateY(-2px)}
+.contact-link .link-icon{font-size:16px;color:var(--accent)}
+
+.portfolio-footer{
+  background:var(--dark2);border-top:1px solid rgba(255,255,255,0.06);
+  padding:28px;text-align:center;font-size:13px;color:var(--gray);
+}
+.portfolio-footer span{color:var(--accent)}
+
+@keyframes fadeInUp{from{opacity:0;transform:translateY(30px)}to{opacity:1;transform:translateY(0)}}
+.reveal{opacity:0;transform:translateY(30px);transition:opacity 0.7s ease,transform 0.7s ease}
+.reveal.visible{opacity:1;transform:none}
+
+.mobile-menu{
+  display:none;position:fixed;top:0;left:0;right:0;bottom:0;
+  background:rgba(10,10,10,0.97);backdrop-filter:blur(20px);
+  z-index:999;flex-direction:column;align-items:center;justify-content:center;gap:24px;
+}
+.mobile-menu.open{display:flex}
+.mobile-menu a{color:var(--white);text-decoration:none;font-size:22px;font-weight:600;transition:color 0.3s}
+.mobile-menu a:hover{color:var(--accent)}
+.close-btn{position:absolute;top:28px;right:28px;font-size:26px;cursor:pointer;color:var(--white);background:none;border:none}
+
+.about-grid{display:grid;grid-template-columns:280px 1fr;gap:48px;align-items:center;text-align:left}
+.about-photo-wrap{border-radius:20px;overflow:hidden;border:2px solid rgba(147,197,114,0.35);box-shadow:0 16px 48px rgba(0,0,0,0.35)}
+.about-photo{width:100%;height:320px;object-fit:cover;object-position:center top;display:block}
+.about-content p{font-size:14px;color:var(--gray);line-height:1.85;margin-bottom:16px}
+.about-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:28px}
+.about-stat{
+  background:var(--glass-bg);border:1px solid var(--glass-border);border-radius:16px;
+  padding:18px 12px;text-align:center;
+}
+.about-stat-num{font-size:26px;font-weight:800;color:var(--accent);line-height:1.2}
+.about-stat-label{font-size:11px;color:var(--gray);margin-top:6px;font-weight:500}
+.about-edu{
+  margin-top:20px;padding:16px 18px;border-radius:14px;
+  background:rgba(147,197,114,0.08);border:1px solid rgba(147,197,114,0.25);
+  font-size:13px;color:rgba(255,255,255,0.85);line-height:1.6;
+}
+.about-edu strong{color:var(--accent);font-weight:600}
+
+@media(max-width:900px){
+  .services-grid{grid-template-columns:1fr 1fr}
+  .skills-grid{grid-template-columns:repeat(2,1fr)}
+}
+@media(max-width:768px){
+  .nav-links{display:none}
+  .hamburger{display:flex}
+  .hero-inner{grid-template-columns:1fr;text-align:center;gap:32px}
+  .hero-left{padding-right:0}
+  .hero-right{order:-1;padding-left:0;padding-bottom:8px}
+  .hero-circle-wrap{width:280px;height:280px;margin:0 auto}
+  .experience-badge{animation:none;right:8px;top:auto;bottom:12px;transform:none}
+  .float-badge.green{left:8px;bottom:16px}
+  .float-badge.blue{left:8px;top:16px}
+  .hero-bio{margin:0 auto 36px}
+  .hero-btns{justify-content:center}
+  .services-grid{grid-template-columns:1fr}
+  .contact-card{padding:40px 24px}
+  .about-grid{grid-template-columns:1fr;text-align:center}
+  .about-photo-wrap{max-width:260px;margin:0 auto}
+  .about-stats{grid-template-columns:1fr}
+}
+@media(max-width:480px){
+  .skills-grid{grid-template-columns:1fr 1fr}
+  .projects-grid{grid-template-columns:1fr}
+}
+`;
+
+const NAV_LINKS = [
+  { href: '#home', label: 'Home' },
+  { href: '#about', label: 'About' },
+  { href: '#services', label: 'Services' },
+  { href: '#skills', label: 'Skills' },
+  { href: '#resume', label: 'Resume' },
+  { href: '#projects', label: 'Projects' },
+  { href: '#contact', label: 'Contact' },
+];
+
+const SKILLS = [
+  { icon: '⚛️', name: 'React', level: 90 },
+  { icon: '🟨', name: 'JavaScript', level: 88 },
+  { icon: '🔷', name: 'TypeScript', level: 75 },
+  { icon: '🎨', name: 'Figma', level: 85 },
+  { icon: '🟢', name: 'Node.js', level: 78 },
+  { icon: '🔥', name: 'Firebase', level: 80 },
+  { icon: '✨', name: 'UI/UX Design', level: 85 },
+  { icon: '📱', name: 'React Native', level: 72 },
+];
+
+const SERVICES = [
+  {
+    emoji: '🎨',
+    title: 'UI / UX Design',
+    desc: 'Designing intuitive, beautiful interfaces using Figma. From wireframes to polished prototypes that users love.',
+  },
+  {
+    emoji: '💻',
+    title: 'Web Development',
+    desc: 'Building fast, responsive web apps with React, Node.js, and modern frameworks. Clean code, solid architecture.',
+  },
+  {
+    emoji: '📱',
+    title: 'Mobile Apps',
+    desc: 'Cross-platform mobile apps using React Native. Smooth performance, native feel, one codebase.',
+  },
+];
+
+const PROJECTS = [
+  {
+    emoji: '🛒',
+    grad: 'p-grad-1',
+    title: 'TeeCollection - E-commerce Store',
+    tech: ['Angular', 'Node.js', 'MongoDB'],
+    accent: ['Angular'],
+    link: 'https://github.com/ayu-sheladiya/TeeCollection-Online-Clothing-Store',
+    images: [
+      'TeeCollection/Screenshot%202026-04-09%20233857.png',
+      'TeeCollection/Screenshot%202026-04-09%20235455.png',
+      'TeeCollection/Screenshot%202026-04-10%20002552.png'
+    ]
+  },
+  {
+    emoji: '🛍️',
+    grad: 'p-grad-2',
+    title: 'TheCollective - PHP Shopping Hub',
+    tech: ['PHP', 'JavaScript', 'MySQL'],
+    accent: ['PHP'],
+    link: 'https://github.com/ayu-sheladiya/TheCollective-PHP-Online-Shopping-Hub',
+    images: [
+      'TheCollective/Screenshot%202026-05-20%20184136.png',
+      'TheCollective/Screenshot%202026-05-20%20184157.png',
+      'TheCollective/Screenshot%202026-05-20%20184235.png',
+      'TheCollective/Screenshot%202026-05-20%20185016.png',
+      'TheCollective/Screenshot%202026-05-20%20185112.png'
+    ]
+  },
+  {
+    emoji: '✏️',
+    grad: 'p-grad-3',
+    title: 'Product Design Showcase',
+    tech: ['UI/UX', 'Figma', 'Case Study'],
+    accent: ['UI/UX'],
+    link: 'https://www.figma.com/community',
+    images: [
+      'Product%20Designs/sareepost.png'
+    ]
+  },
+  {
+    emoji: '💰',
+    grad: 'p-grad-4',
+    title: 'Finance Dashboard Manager',
+    tech: ['React Native', 'Expo'],
+    accent: ['React Native'],
+    link: 'https://github.com/ayu-sheladiya',
+    images: [
+      'Finance%20Dashboard/Screenshot%202026-04-15%20230451.png',
+      'Finance%20Dashboard/Screenshot%202026-04-15%20230753.png'
+    ]
+  },
+];
+
+function Reveal({ children, className = '', style }) {
+  const ref = useRef(null);
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return undefined;
+    const io = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((e) => {
+          if (e.isIntersecting) {
+            e.target.classList.add('visible');
+          }
+        });
+      },
+      { threshold: 0.15 }
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, []);
+
+  return (
+    <div className={`reveal ${className}`} ref={ref} style={style}>
+      {children}
+    </div>
+  );
+}
+
+function Header({ activeSection }) {
+  const [scrolled, setScrolled] = useState(false);
+  const [mobileOpen, setMobileOpen] = useState(false);
+
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 60);
+    window.addEventListener('scroll', onScroll);
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
+
+  const closeMobile = () => {
+    setMobileOpen(false);
+    document.body.style.overflow = '';
+  };
+
+  const openMobile = () => {
+    setMobileOpen(true);
+    document.body.style.overflow = 'hidden';
+  };
+
+  return (
+    <>
+      <div className={`mobile-menu ${mobileOpen ? 'open' : ''}`}>
+        <button type="button" className="close-btn" onClick={closeMobile} aria-label="Close menu">
+          ✕
+        </button>
+        {NAV_LINKS.map((l) => (
+          <a key={l.href} href={l.href} onClick={closeMobile}>
+            {l.label}
+          </a>
+        ))}
+      </div>
+
+      <nav className={`portfolio-nav ${scrolled ? 'scrolled' : ''}`} id="navbar">
+        <div className="nav-brand">
+          <div className="brand-icon">🔥</div>
+          <span>Ayushi</span>
+        </div>
+        <div className="nav-links">
+          {NAV_LINKS.map((l) => (
+            <a key={l.href} href={l.href} className={activeSection === l.href ? 'active' : ''}>
+              {l.label}
+            </a>
+          ))}
+        </div>
+        <button type="button" className="hamburger" onClick={openMobile} aria-label="Open menu">
+          <span />
+          <span />
+          <span />
+        </button>
+      </nav>
+    </>
+  );
+}
+
+function Hero() {
+  const [loaded, setLoaded] = useState(false);
+
+  useEffect(() => {
+    const t = requestAnimationFrame(() => setLoaded(true));
+    return () => cancelAnimationFrame(t);
+  }, []);
+
+  return (
+    <section className="hero" id="home">
+      <div className="hero-inner">
+        <div className={`hero-left ${loaded ? 'loaded' : ''}`}>
+          <div className="hello-badge">👋 Hello There</div>
+          <h1 className="hero-title">
+            I&apos;m <span>Ayushi Sheladiya</span>,
+          </h1>
+          <h2 className="hero-subtitle">
+            Web Developer
+            <br />
+            &amp; UI/UX Enthusiast
+          </h2>
+          <p className="hero-bio">
+            A passionate and detail-oriented web developer with expertise in building responsive web
+            applications and designing intuitive user interfaces. I love turning complex problems into simple,
+            beautiful digital experiences.
+          </p>
+          <div className="hero-btns">
+            <a href="#projects" className="btn-primary">
+              View Portfolio →
+            </a>
+            <a href="#contact" className="btn-outline">
+              Hire Me
+            </a>
+          </div>
+        </div>
+
+        <div className={`hero-right ${loaded ? 'loaded' : ''}`}>
+          <div className="hero-circle-wrap">
+            <div className="hero-ring" aria-hidden="true" />
+            <div className="hero-circle">
+              <img className="hero-avatar" src={SITE_CONFIG.photo} alt="Ayushi Sheladiya" />
+            </div>
+            <div className="experience-badge">
+              <div className="exp-stars">★★★★★</div>
+              <div className="exp-num">2+</div>
+              <div className="exp-label">
+                Years
+                <br />
+                Experience
+              </div>
+            </div>
+            <div className="float-badge green">
+              <span className="dot" />
+              ✦ Open to Work
+            </div>
+            <div className="float-badge blue">⚡ Web Developer</div>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function About() {
+  return (
+    <section className="dark-section" id="about" style={{ paddingTop: 20, paddingBottom: 40 }}>
+      <div className="section-inner">
+        <Reveal className="section-header">
+          <div className="section-tag">About Me</div>
+          <h2 className="section-title">
+            Who <span>I Am</span>
+          </h2>
+        </Reveal>
+        <Reveal>
+          <div className="about-grid">
+            <div className="about-photo-wrap">
+              <img className="about-photo" src={SITE_CONFIG.photo} alt="Ayushi Sheladiya" />
+            </div>
+            <div className="about-content">
+              <p>
+                I&apos;m a Web Developer &amp; UI/UX Enthusiast based in Surat, India, passionate about building
+                responsive web applications and designing intuitive digital experiences that users love.
+              </p>
+              <p>
+                From wireframes in Figma to production-ready React apps, I bridge design and development to
+                deliver polished, accessible websites end to end.
+              </p>
+              <div className="about-stats">
+                <div className="about-stat">
+                  <div className="about-stat-num">10+</div>
+                  <div className="about-stat-label">Projects Completed</div>
+                </div>
+                <div className="about-stat">
+                  <div className="about-stat-num">2+</div>
+                  <div className="about-stat-label">Years Experience</div>
+                </div>
+                <div className="about-stat">
+                  <div className="about-stat-num">8+</div>
+                  <div className="about-stat-label">Core Technologies</div>
+                </div>
+              </div>
+              <div className="about-edu">
+                <strong>Education:</strong> Bachelor of Computer Applications (BCA) — Surat, Gujarat, India.
+                Focused on web development, UI/UX design, and full-stack applications.
+              </div>
+            </div>
+          </div>
+        </Reveal>
+      </div>
+    </section>
+  );
+}
+
+function Services() {
+  return (
+    <section className="dark-section" id="services">
+      <div className="section-inner">
+        <Reveal className="section-header">
+          <div className="section-tag">What I Do</div>
+          <h2 className="section-title">
+            My <span>Services</span>
+          </h2>
+          <p className="section-desc">
+            Delivering end-to-end digital solutions — from pixel-perfect UI to production-ready code.
+          </p>
+        </Reveal>
+        <div className="services-grid">
+          {SERVICES.map((s) => (
+            <Reveal key={s.title} className="service-card">
+              <div className="s-img">{s.emoji}</div>
+              <h3>{s.title}</h3>
+              <p>{s.desc}</p>
+            </Reveal>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function Skills() {
+  const gridRef = useRef(null);
+
+  useEffect(() => {
+    const grid = gridRef.current;
+    if (!grid) return undefined;
+    const io = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((e) => {
+          if (e.isIntersecting) {
+            grid.querySelectorAll('.skill-bar-fill').forEach((fill) => {
+              const w = fill.getAttribute('data-w');
+              if (w) fill.style.width = `${w}%`;
+            });
+            io.disconnect();
+          }
+        });
+      },
+      { threshold: 0.15 }
+    );
+    io.observe(grid);
+    return () => io.disconnect();
+  }, []);
+
+  return (
+    <section className="dark-section" id="skills" style={{ paddingTop: 20 }}>
+      <div className="section-inner">
+        <Reveal className="section-header">
+          <div className="section-tag">Expertise</div>
+          <h2 className="section-title">
+            My <span>Skills</span>
+          </h2>
+        </Reveal>
+        <div className="skills-grid" ref={gridRef}>
+          {SKILLS.map((s) => (
+            <div key={s.name} className="skill-card">
+              <span className="skill-icon">{s.icon}</span>
+              <div className="skill-name">{s.name}</div>
+              <div className="skill-bar">
+                <div className="skill-bar-fill" data-w={s.level} style={{ width: '0%' }} />
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function Resume() {
+  return (
+    <section className="dark-section" id="resume" style={{ paddingTop: 0, paddingBottom: 40 }}>
+      <div className="section-inner">
+        <Reveal className="contact-card" style={{ maxWidth: 520 }}>
+          <h2 className="contact-title">
+            My <span>Resume</span>
+          </h2>
+          <p className="contact-desc">Download a summary of my experience, skills, and recent work.</p>
+          <a
+            href={SITE_CONFIG.resume}
+            download={SITE_CONFIG.resume}
+            className="btn-primary"
+          >
+            Download Resume ↓
+          </a>
+        </Reveal>
+      </div>
+    </section>
+  );
+}
+
+function ProjectCard({ project, onOpenLightbox }) {
+  const [currentSlide, setCurrentSlide] = useState(0);
+  const images = project.images || [];
+
+  const handleNext = (e) => {
+    e.stopPropagation();
+    setCurrentSlide((prev) => (prev + 1) % images.length);
+  };
+
+  const handlePrev = (e) => {
+    e.stopPropagation();
+    setCurrentSlide((prev) => (prev - 1 + images.length) % images.length);
+  };
+
+  const handleDotClick = (e, index) => {
+    e.stopPropagation();
+    setCurrentSlide(index);
+  };
+
+  const hasImages = images.length > 0;
+
+  return (
+    <Reveal className="project-card">
+      <div 
+        className={`project-img ${project.grad}`} 
+        onClick={() => hasImages && onOpenLightbox(project, currentSlide)}
+      >
+        {/* Emoji Badge overlay */}
+        <div className="project-badge">
+          <span>{project.emoji}</span>
+        </div>
+
+        {/* Zoom Button overlay */}
+        {hasImages && (
+          <button 
+            type="button" 
+            className="project-zoom-btn" 
+            title="View Screenshots"
+            onClick={(e) => {
+              e.stopPropagation();
+              onOpenLightbox(project, currentSlide);
+            }}
+          >
+            🔍
+          </button>
+        )}
+
+        {/* Carousel Container */}
+        {hasImages ? (
+          <div className="carousel-container">
+            {images.map((img, idx) => (
+              <div 
+                key={img} 
+                className={`carousel-slide ${idx === currentSlide ? 'active' : ''}`}
+              >
+                <img src={img} alt={`${project.title} screenshot ${idx + 1}`} loading="lazy" />
+              </div>
+            ))}
+            
+            {/* Arrows if multiple images */}
+            {images.length > 1 && (
+              <>
+                <button 
+                  type="button" 
+                  className="carousel-btn prev" 
+                  onClick={handlePrev}
+                  aria-label="Previous image"
+                >
+                  ‹
+                </button>
+                <button 
+                  type="button" 
+                  className="carousel-btn next" 
+                  onClick={handleNext}
+                  aria-label="Next image"
+                >
+                  ›
+                </button>
+
+                {/* Dot pagination */}
+                <div className="carousel-dots">
+                  {images.map((_, idx) => (
+                    <button
+                      key={idx}
+                      type="button"
+                      className={`carousel-dot ${idx === currentSlide ? 'active' : ''}`}
+                      onClick={(e) => handleDotClick(e, idx)}
+                      aria-label={`Go to slide ${idx + 1}`}
+                    />
+                  ))}
+                </div>
+              </>
+            )}
+          </div>
+        ) : (
+          /* Fallback / original view if no images */
+          <div className="project-img-inner">{project.emoji}</div>
+        )}
+      </div>
+
+      <div className="project-body" onClick={() => hasImages && onOpenLightbox(project, currentSlide)}>
+        <div className="project-title">{project.title}</div>
+        <div className="tech-pills">
+          {project.tech.map((t) => (
+            <span key={t} className={`tech-pill ${project.accent.includes(t) ? 'accent' : ''}`}>
+              {t}
+            </span>
+          ))}
+        </div>
+        <a
+          href={project.link}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="project-link"
+          onClick={(e) => e.stopPropagation()}
+        >
+          View Project →
+        </a>
+      </div>
+    </Reveal>
+  );
+}
+
+function Lightbox({ project, initialIndex, onClose }) {
+  const [activeIndex, setActiveIndex] = useState(initialIndex);
+  const images = project.images || [];
+
+  useEffect(() => {
+    // Prevent background scrolling when lightbox is open
+    document.body.style.overflow = 'hidden';
+    
+    // Keyboard navigation
+    const handleKeyDown = (e) => {
+      if (e.key === 'ArrowRight') {
+        setActiveIndex((prev) => (prev + 1) % images.length);
+      } else if (e.key === 'ArrowLeft') {
+        setActiveIndex((prev) => (prev - 1 + images.length) % images.length);
+      } else if (e.key === 'Escape') {
+        onClose();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    
+    return () => {
+      document.body.style.overflow = '';
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [images.length, onClose]);
+
+  const handleNext = () => {
+    setActiveIndex((prev) => (prev + 1) % images.length);
+  };
+
+  const handlePrev = () => {
+    setActiveIndex((prev) => (prev - 1 + images.length) % images.length);
+  };
+
+  if (!images.length) return null;
+
+  return (
+    <div className="lightbox-overlay" onClick={onClose}>
+      <button 
+        type="button" 
+        className="lightbox-close" 
+        onClick={onClose} 
+        aria-label="Close lightbox"
+      >
+        ✕
+      </button>
+
+      <div className="lightbox-container" onClick={(e) => e.stopPropagation()}>
+        <div className="lightbox-main">
+          {images.length > 1 && (
+            <button 
+              type="button" 
+              className="lightbox-btn prev" 
+              onClick={handlePrev}
+              aria-label="Previous screenshot"
+            >
+              ‹
+            </button>
+          )}
+
+          <div className="lightbox-img-wrapper">
+            <img 
+              className="lightbox-img" 
+              src={images[activeIndex]} 
+              alt={`${project.title} full view ${activeIndex + 1}`} 
+            />
+          </div>
+
+          {images.length > 1 && (
+            <button 
+              type="button" 
+              className="lightbox-btn next" 
+              onClick={handleNext}
+              aria-label="Next screenshot"
+            >
+              ›
+            </button>
+          )}
+        </div>
+
+        <div className="lightbox-info">
+          <div className="lightbox-title">{project.title}</div>
+          <div className="lightbox-counter">
+            Image {activeIndex + 1} of {images.length}
+          </div>
+        </div>
+
+        {images.length > 1 && (
+          <div className="lightbox-thumbnails">
+            {images.map((img, idx) => (
+              <div 
+                key={img} 
+                className={`lightbox-thumb ${idx === activeIndex ? 'active' : ''}`}
+                onClick={() => setActiveIndex(idx)}
+              >
+                <img src={img} alt={`Thumbnail ${idx + 1}`} />
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function Projects() {
+  const [lightboxState, setLightboxState] = useState({ isOpen: false, project: null, index: 0 });
+
+  const openLightbox = (project, index) => {
+    setLightboxState({ isOpen: true, project, index });
+  };
+
+  const closeLightbox = () => {
+    setLightboxState({ isOpen: false, project: null, index: 0 });
+  };
+
+  return (
+    <section className="dark-section" id="projects" style={{ paddingTop: 20 }}>
+      <div className="section-inner">
+        <Reveal className="section-header">
+          <div className="section-tag">Work</div>
+          <h2 className="section-title">
+            Featured <span>Projects</span>
+          </h2>
+          <p className="section-desc">
+            Real-world projects built with modern tech — from dashboards to mobile apps.
+          </p>
+        </Reveal>
+        <div className="projects-grid">
+          {PROJECTS.map((p) => (
+            <ProjectCard key={p.title} project={p} onOpenLightbox={openLightbox} />
+          ))}
+        </div>
+      </div>
+
+      {lightboxState.isOpen && (
+        <Lightbox 
+          project={lightboxState.project} 
+          initialIndex={lightboxState.index} 
+          onClose={closeLightbox} 
+        />
+      )}
+    </section>
+  );
+}
+
+function Contact() {
+  return (
+    <section className="dark-section" id="contact" style={{ paddingTop: 20 }}>
+      <div className="section-inner">
+        <Reveal className="contact-card">
+          <h2 className="contact-title">
+            Let&apos;s Work <span>Together</span>
+          </h2>
+          <p className="contact-desc">
+            Have a project in mind? I&apos;d love to hear about it. Let&apos;s create something amazing together.
+          </p>
+          <div className="contact-links">
+            <a href={`mailto:${SITE_CONFIG.email}`} className="contact-link">
+              <span className="link-icon">✉</span> {SITE_CONFIG.email}
+            </a>
+            <a
+              href={SITE_CONFIG.linkedin}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="contact-link"
+            >
+              <span className="link-icon">in</span> LinkedIn
+            </a>
+            <a
+              href={SITE_CONFIG.github}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="contact-link"
+            >
+              <span className="link-icon">⌘</span> GitHub
+            </a>
+          </div>
+          <a href={`mailto:${SITE_CONFIG.email}`} className="btn-primary">
+            Send Message
+          </a>
+        </Reveal>
+      </div>
+    </section>
+  );
+}
+
+function Footer() {
+  return (
+    <footer className="portfolio-footer">
+      © 2026 <span>Ayushi Sheladiya</span>. Built with React ♥
+    </footer>
+  );
+}
+
+function App() {
+  const [activeSection, setActiveSection] = useState('#home');
+
+  useEffect(() => {
+    document.documentElement.classList.add('portfolio-ready');
+  }, []);
+
+  useEffect(() => {
+    const onScroll = () => {
+      NAV_LINKS.forEach((l) => {
+        const sec = document.querySelector(l.href);
+        if (sec) {
+          const t = sec.getBoundingClientRect().top;
+          if (t <= 100 && t > -sec.offsetHeight + 100) {
+            setActiveSection(l.href);
+          }
+        }
+      });
+    };
+    window.addEventListener('scroll', onScroll);
+    onScroll();
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
+
+  return (
+    <>
+      <Header activeSection={activeSection} />
+      <Hero />
+      <About />
+      <Services />
+      <Skills />
+      <Resume />
+      <Projects />
+      <Contact />
+      <Footer />
+    </>
+  );
+}
