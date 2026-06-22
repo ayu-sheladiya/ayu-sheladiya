@@ -37,6 +37,18 @@ html:not(.portfolio-ready) body{{visibility:hidden}}
 html.portfolio-ready body{{visibility:visible}}
 {custom_css}
   </style>
+  <script>
+    // Safety: make body visible after 4s even if scripts fail
+    setTimeout(function(){{ document.documentElement.classList.add('portfolio-ready'); }}, 4000);
+    window.onerror = function(msg, url, line, col, err) {{
+      console.error('Portfolio Error:', msg, url, line);
+      document.documentElement.classList.add('portfolio-ready');
+      var root = document.getElementById('root');
+      if (root && !root.hasChildNodes()) {{
+        root.innerHTML = '<div style="min-height:100vh;display:flex;align-items:center;justify-content:center;background:#0A0A0A;color:#fff;font-family:Poppins,sans-serif;text-align:center;padding:40px"><div><h1 style="font-size:24px;margin-bottom:16px;color:#93C572">Loading Error</h1><p style="color:#888;font-size:14px;max-width:400px">Please check your internet connection and refresh. This portfolio requires React, Babel, and TailwindCSS from CDN.</p><button onclick="location.reload()" style="margin-top:20px;padding:12px 28px;background:#93C572;color:#0a0a0a;border:none;border-radius:50px;font-weight:600;cursor:pointer;font-size:14px">Retry</button></div></div>';
+      }}
+    }};
+  </script>
   <script src="https://cdn.tailwindcss.com"></script>
   <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
   <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
