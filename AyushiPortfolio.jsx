@@ -6,7 +6,7 @@ const SITE_CONFIG = {
   github: 'https://github.com/ayu-sheladiya',
   siteUrl: 'https://ayu-sheladiya.github.io',
   photo: 'ayu.jpg',
-  resume: 'Ayushi-Sheladiya-Resume.pdf',
+  resume: 'Ayushi_Sheladiya_UI-UX.pdf',
 };
 
 const CUSTOM_CSS = `
@@ -515,14 +515,18 @@ const PROJECTS = [
     ]
   },
   {
-    emoji: '✏️',
+    emoji: '🥗',
     grad: 'p-grad-3',
-    title: 'Product Design Showcase',
-    tech: ['UI/UX', 'Figma', 'Case Study'],
-    accent: ['UI/UX'],
-    link: 'https://www.figma.com/community',
+    title: 'GreenBite',
+    tech: ['React', 'Tailwind CSS', 'Node.js'],
+    accent: ['React'],
+    link: 'https://github.com/ayu-sheladiya',
     images: [
-      'Product%20Designs/sareepost.png'
+      'GreenBite/Screenshot%202026-06-22%20112305.png',
+      'GreenBite/Screenshot%202026-06-22%20112338.png',
+      'GreenBite/Screenshot%202026-06-22%20112430.png',
+      'GreenBite/Screenshot%202026-06-22%20112501.png',
+      'GreenBite/Screenshot%202026-06-22%20112555.png'
     ]
   },
   {
@@ -663,15 +667,7 @@ function Hero() {
             <div className="hero-circle">
               <img className="hero-avatar" src={SITE_CONFIG.photo} alt="Ayushi Sheladiya" />
             </div>
-            <div className="experience-badge">
-              <div className="exp-stars">★★★★★</div>
-              <div className="exp-num">2+</div>
-              <div className="exp-label">
-                Years
-                <br />
-                Experience
-              </div>
-            </div>
+
             <div className="float-badge green">
               <span className="dot" />
               ✦ Open to Work
@@ -714,8 +710,8 @@ function About() {
                   <div className="about-stat-label">Projects Completed</div>
                 </div>
                 <div className="about-stat">
-                  <div className="about-stat-num">2+</div>
-                  <div className="about-stat-label">Years Experience</div>
+                  <div className="about-stat-num">Fresh</div>
+                  <div className="about-stat-label">Graduate</div>
                 </div>
                 <div className="about-stat">
                   <div className="about-stat-num">8+</div>
